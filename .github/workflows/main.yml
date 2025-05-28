@@ -14,6 +14,8 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
+      with:
+        fetch-depth: 0  # 获取完整的提交历史，以便进行rebase
 
     - name: Set up Python
       uses: actions/setup-python@v2
@@ -40,9 +42,16 @@ jobs:
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
         git add -A
+        
+        # 检查是否有文件被修改
         if ! git diff --staged --quiet; then
           git commit -m "Auto-update live files"
-          git push
+          
+          # 拉取远程更新并rebase到当前分支
+          git pull --rebase origin main
+          
+          # 推送更新
+          git push origin main
         fi
 
     env:
